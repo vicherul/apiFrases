@@ -54,5 +54,33 @@ function getMongoDebugInfo(){
         readyState: mongoose.connection.readyState,
     }
 }
-
 // 5.- Crearemos todas las rutas, get, post, todo esto vamos a configurarlo en vercel.
+
+// Para debug
+app.get("/api/debug-db", async(req: Request, res: Response) => {
+  try {
+    await connectToMongo();
+    res.json(getMongoDebugInfo());
+  } catch (error) {
+    console.error("Error al inspeccionar MongoDB:", error)
+    res.status(500).json({
+      error: "No se pudo inspeccionar la conexion",
+      detail: error instanceof Error ? error.message : "Error Desconocido"
+    })
+  }
+});
+
+//Get de las frases
+app.get("/api/frases", async (req: Request, res: Response) => {
+    try {
+        await connectToMongo();
+        const frases = await Frase.find();
+        res.json(frases);
+    } catch (error) {
+        console.error("Error al obtener las frases:", error);
+        res.status(500).json({
+            error: "No se pudo obtener las frases",
+            detail: error instanceof Error ? error.message : "Error Desconocido"
+        });
+    }
+});
