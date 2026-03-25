@@ -22,7 +22,7 @@ const mongoUriValidated: string = mongoUri;
 let isMongoConnected = false;
 let currentDatabase = ""; // Valor por defecto, se actualizara al conectar 
 
-async function connectToMongo() {
+const connectToMongo = async () => {
     if(isMongoConnected) return;
 
     // Si existe DB_NAME, forzamos ese nombre de base en la conexion
@@ -38,7 +38,7 @@ async function connectToMongo() {
 const FraseSchema = new mongoose.Schema(
     {
         text: String,
-        autor: String,
+        author: String,
     },
     {
         collection: "Frasesclase"
@@ -47,7 +47,7 @@ const FraseSchema = new mongoose.Schema(
 
 const Frase = mongoose.models.Frases || mongoose.model("Frase", FraseSchema);
 
-function getMongoDebugInfo(){
+const getMongoDebugInfo = () => {
     return{
         database: currentDatabase || mongoose.connection.name,
         collection: Frase.collection.name,
@@ -58,52 +58,53 @@ function getMongoDebugInfo(){
 
 // Para debug
 app.get("/api/debug-db", async(req: Request, res: Response) => {
-  try {
-    await connectToMongo();
-    res.json(getMongoDebugInfo());
-  } catch (error) {
-    console.error("Error al inspeccionar MongoDB:", error)
-    res.status(500).json({
-      error: "No se pudo inspeccionar la conexion",
-      detail: error instanceof Error ? error.message : "Error Desconocido"
-    })
-  }
+    try {
+        await connectToMongo();
+        res.json(getMongoDebugInfo());
+    } catch (error) {
+        console.error("Error al inspeccionar MongoDB:", error)
+        res.status(500).json({
+            error: "No se pudo inspeccionar la conexion",
+            detail: error instanceof Error ? error.message: "Error Desconocido"
+        })
+    }
 });
 
-//Get de las frases
-app.get("/api/frases", async (req: Request, res: Response) => {
+// GET DE LAS FRASES
+app.get("/api/frases", async(req: Request, res: Response)=>{
     try {
         await connectToMongo();
         const frases = await Frase.find();
-        res.json(frases);
+        res.json(frases)
     } catch (error) {
-        console.error("Error al obtener las frases:", error);
+        console.error("Error al leer frases", error)
         res.status(500).json({
-            error: "No se pudo obtener las frases",
-            detail: error instanceof Error ? error.message : "Error Desconocido"
-        });
+            error: "No se pudieron obtener las frases",
+            detail: error instanceof Error ? error.message: "Error Desconocido"
+        })
     }
 });
 
 // POST DE LAS FRASES
-app.post("/api/frases", async(req: Request, res: Response)=>{
-  try {
-    const { text, author } = req.body
-    if(!text || !author){
-      res.status(400).json({error: "Debes enviar texto y autor, espabila!!"})
-    }
+app.post("/api/frases",async(req: Request, res: Response)=>{
+    try {
+        const { text, author } = req.body
+        if(!text || !author){
+            res.status(400).json({error: "Debes enviar texto y autor, espabila!!"})
+        }
 
-    await connectToMongo();
-    const nuevaFrase = new Frase({text, author}) //Toma los datos que envia el usuario
-    await nuevaFrase.save() // Lo guarda en la base de datos
-    res.status(201).json(nuevaFrase) //Responder la frase recien creada
-  } catch (error) {
-    console.error("Error al crear la frase:", error)
-    res.status(500).json({
-      error: "No se pudieron obtener las frases",
-      detail: error instanceof Error ? error.message: "Error Desconocido"
-    })
-  }
+        await connectToMongo();
+        const nuevaFrase = new Frase({text, author}) //Toma los datos que envia el usuario
+        await nuevaFrase.save() // Lo guarda en la base de datos
+        res.status(201).json(nuevaFrase) //Responder la frase recien creada
+    } catch (error) {
+        console.error("Error al crear la frase:", error)
+        res.status(500).json({
+            error: "No se pudieron obtener las frases",
+            detail: error instanceof Error ? error.message: "Error Desconocido"
+        })
+    }
 })
+
 
 export default app;
