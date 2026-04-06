@@ -1,6 +1,7 @@
 import express , {Request, Response} from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv"
+import cors from "cors";
 
 // 1.- Activamos las variables de entorno de nuestro archivo secreto
 dotenv.config();
@@ -8,6 +9,7 @@ dotenv.config();
 // 2.- Creamos la aplicacion express
 const app = express();
 app.use(express.json()) // permite que nuestra api entienda el json
+app.use(cors()) // permite que nuestra api reciba solicitudes de otros dominios
 
 // Conexion a MongoDB
 
