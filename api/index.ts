@@ -39,6 +39,8 @@ const FraseSchema = new mongoose.Schema(
     {
         text: String,
         author: String,
+        image: String,
+        zone: String,
     },
     {
         collection: "Frasesclase"
@@ -88,13 +90,13 @@ app.get("/api/frases", async(req: Request, res: Response)=>{
 // POST DE LAS FRASES
 app.post("/api/frases",async(req: Request, res: Response)=>{
     try {
-        const { text, author } = req.body
+        const { text, author, image, zone } = req.body
         if(!text || !author){
-            res.status(400).json({error: "Debes enviar texto y autor, espabila!!"})
+            return res.status(400).json({error: "Debes enviar texto y autor, espabila!!"})
         }
 
         await connectToMongo();
-        const nuevaFrase = new Frase({text, author}) //Toma los datos que envia el usuario
+        const nuevaFrase = new Frase({text, author, image, zone}) //Toma los datos que envia el usuario
         await nuevaFrase.save() // Lo guarda en la base de datos
         res.status(201).json(nuevaFrase) //Responder la frase recien creada
     } catch (error) {
