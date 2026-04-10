@@ -92,19 +92,23 @@ app.get("/api/frases", async(req: Request, res: Response)=>{
 // POST DE LAS FRASES
 app.post("/api/frases",async(req: Request, res: Response)=>{
     try {
-        const { text, author, image, zone } = req.body
-        if(!text || !author){
-            return res.status(400).json({error: "Debes enviar texto y autor, espabila!!"})
+        if(!req.body || typeof req.body !== "object"){
+            return res.status(400).json({error: "Debes enviar un JSON válido"})
+        }
+        
+        const { text, author, image } = req.body
+        if(!text || !author || !image){
+            return res.status(400).json({error: "Debes enviar texto, autor e imagen!"})
         }
 
         await connectToMongo();
-        const nuevaFrase = new Frase({text, author, image, zone}) //Toma los datos que envia el usuario
+        const nuevaFrase = new Frase({text, author, image}) //Toma los datos que envia el usuario
         await nuevaFrase.save() // Lo guarda en la base de datos
         res.status(201).json(nuevaFrase) //Responder la frase recien creada
     } catch (error) {
         console.error("Error al crear la frase:", error)
         res.status(500).json({
-            error: "No se pudieron obtener las frases",
+            error: "No se pudo crear la frase",
             detail: error instanceof Error ? error.message: "Error Desconocido"
         })
     }
