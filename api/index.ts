@@ -112,7 +112,50 @@ app.post("/api/frases",async(req: Request, res: Response)=>{
             detail: error instanceof Error ? error.message: "Error Desconocido"
         })
     }
-})
+}),
+
+// PUT DE LAS FRASES
+app.put("/api/frases/:id", async(req: Request, res: Response)=>{
+    try {
+        const fraseId = req.params.id;
+        if(!req.body || typeof req.body !== "object"){
+            return res.status(400).json({error: "Debes enviar un JSON válido"})
+        }
+
+        const { text, author, image } = req.body;
+        await connectToMongo();
+        const fraseActualizada = await Frase.findByIdAndUpdate(fraseId, { text, author, image }, { new: true });
+        if (!fraseActualizada) {
+            return res.status(404).json({ error: "Frase no encontrada" });
+        }
+        res.json(fraseActualizada);
+    } catch (error) {
+        console.error("Error al actualizar la frase:", error);
+        res.status(500).json({
+            error: "No se pudo actualizar la frase",
+            detail: error instanceof Error ? error.message : "Error Desconocido"
+        });
+    }
+});
+
+// DELETE DE LAS FRASES
+app.delete("/api/frases/:id", async(req: Request, res: Response)=>{
+    try {
+        const fraseId = req.params.id;
+        await connectToMongo();
+        const fraseEliminada = await Frase.findByIdAndDelete(fraseId);
+        if (!fraseEliminada) {
+            return res.status(404).json({ error: "Frase no encontrada" });
+        }
+        res.json({ message: "Frase eliminada correctamente" });
+    } catch (error) {
+        console.error("Error al eliminar la frase:", error);
+        res.status(500).json({
+            error: "No se pudo eliminar la frase",
+            detail: error instanceof Error ? error.message : "Error Desconocido"
+        });
+    }
+});
 
 
 export default app;
