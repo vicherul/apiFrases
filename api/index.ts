@@ -13,13 +13,14 @@ app.use(cors()) // permite que nuestra api reciba solicitudes de otros dominios
 
 // Conexion a MongoDB
 
-const mongoUri = process.env.MONGODB_URI
+const MONGODB_URI = process.env.MONGODB_URI;
+const DB_NAME = process.env.DB_NAME;
 
-if(!mongoUri) {
-    throw new Error ("Falta la variable de entorno, espabila!!")
+if(!MONGODB_URI) {
+    throw new Error ("Falta la variable de entorno MONGODB_URI")
 }
 
-const mongoUriValidated: string = mongoUri;
+const MONGODB_URI_VALIDATED: string = MONGODB_URI;
 
 let isMongoConnected = false;
 let currentDatabase = ""; // Valor por defecto, se actualizara al conectar 
@@ -28,10 +29,9 @@ const connectToMongo = async () => {
     if(isMongoConnected) return;
 
     // Si existe DB_NAME, forzamos ese nombre de base en la conexion
-    const dbNameFromEnv = process.env.DB_NAME;
-    const connectionOptions = dbNameFromEnv ? {dbName: dbNameFromEnv} : undefined;
+    const connectionOptions = DB_NAME ? {dbName: DB_NAME} : undefined;
 
-    await mongoose.connect(mongoUriValidated, connectionOptions)
+    await mongoose.connect(MONGODB_URI_VALIDATED, connectionOptions)
     currentDatabase = mongoose.connection.name
 } 
 
@@ -42,7 +42,7 @@ const FraseSchema = new mongoose.Schema(
         text: String,
         author: String,
         image: String,
-        zone: String,
+        
     },
     {
         collection: "Frasesclase"
