@@ -157,5 +157,4 @@ app.delete("/api/frases/:id", async(req: Request, res: Response)=>{
     }
 });
 
-
 export default app;
